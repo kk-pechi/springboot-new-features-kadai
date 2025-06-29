@@ -12,4 +12,5 @@ import com.example.samuraitravel.entity.Review;
 public interface ReviewRepository extends JpaRepository<Review, Integer>{
 	public Page<Review> findByHouseOrderByCreatedAtDesc(House house, Pageable pageable);
 	List<Review> findByHouseOrderByCreatedAtDesc(House house);
+	boolean existsByUserIdAndHouseId(Integer userId, Integer houseId);
 }
