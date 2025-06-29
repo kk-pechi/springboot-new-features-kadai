@@ -116,7 +116,7 @@ public class HouseController {
 		
 		return "reviews/new";
 	}
-		
+
 	@GetMapping("/{id}/reviews")
 	public String reviewList(@PathVariable(name = "id") Integer id,
 	                         @PageableDefault(page = 0, size = 10) Pageable pageable,
@@ -127,11 +127,19 @@ public class HouseController {
 
 	    House house = houseRepository.findById(id).orElseThrow();
 	    Page<Review> reviewPage = reviewRepository.findByHouseOrderByCreatedAtDesc(house, pageable);
+	    
+//	    投稿ボタンの表示可否を判定する
+	    boolean canPostReview = false;
+	    if (loginUserId != null) {
+	        boolean alreadyReviewed = reviewRepository.existsByUserIdAndHouseId(loginUserId, id);
+	        canPostReview = !alreadyReviewed;
+	    }
 
 	    model.addAttribute("reservationInputForm", new ReservationInputForm());
 	    model.addAttribute("house", house);
 	    model.addAttribute("reviewPage", reviewPage);
 	    model.addAttribute("loginUserId", loginUserId);
+	    model.addAttribute("canPostReview", canPostReview);
 
 	    return "reviews/list";
 	}
