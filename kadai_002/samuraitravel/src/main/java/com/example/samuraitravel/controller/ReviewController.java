@@ -77,25 +77,32 @@ public class ReviewController {
         
         return "reviews/edit";
     }
-    
-	
+       
     @PostMapping("/create")
     public String create(@ModelAttribute @Validated ReviewRegisterForm reviewRegisterForm, BindingResult bindingResult,
-    						@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {        
+                         @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+                         Model model) {
+
+        Integer userId = userDetailsImpl.getUser().getId();
+        Integer houseId = reviewRegisterForm.getHouseId();
+
         if (bindingResult.hasErrors()) {
             return "reviews/new";
         }
-        
-        reviewRegisterForm.setUserId(userDetailsImpl.getUser().getId());
 
-//        エラーがない場合はメソッドを実行して登録（引数はフォームクラスのインスタンス）
+        // すでに投稿済みかチェック（1つの民宿ごとに1レビュー制限）
+        if (reviewRepository.existsByUserIdAndHouseId(userId, houseId)) {
+            return "reviews/new";
+        }
+
+        // 登録処理
+        //エラーがない場合はメソッドを実行して登録（引数はフォームクラスのインスタンス）
+        reviewRegisterForm.setUserId(userId);
         reviewService.create(reviewRegisterForm);
-        
-//        リダイレクト先にデータを渡すメソッド
-//        redirectAttributes.addFlashAttribute("successMessage", "レビューを登録しました。");    
-        
-        return "redirect:/reviews/new";
-    } 
+
+        return "redirect:/houses/" + houseId + "/reviews";
+    }
+
     
     @PostMapping("/houses/{houseId}/reviews/{reviewId}/edit")
     public String editReview(@PathVariable Integer houseId, @PathVariable Integer reviewId,
