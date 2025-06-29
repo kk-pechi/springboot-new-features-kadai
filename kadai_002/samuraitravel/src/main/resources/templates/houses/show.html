@@ -150,12 +150,15 @@
 								    
 								<!--レビュー一覧の表示-->
 								<h1 class="mb-4 text-center">レビュー</h1>
-								
-								<form method="get" th:action="@{/houses/{houseId}/reviews/new(houseId=${house.id})}" th:object="${reviewRegisterForm}">                                                                                                                                                                 
-								<div class="form-group text-center mb-4">
-								<button type="submit" class="btn text-white shadow-sm w-20 samuraitravel-btn">レビューを投稿する</button>
+
+			       					<!-- レビュー投稿ボタン（認証済みユーザー向け レビュー投稿済みかどうか判定する） -->
+								<div sec:authorize="isAuthenticated()"  th:if="${canPostReview}">
+									<form method="get" th:action="@{/houses/{houseId}/reviews/new(houseId=${house.id})}" th:object="${reviewRegisterForm}">                                                                                                                                                                 
+										<div class="form-group text-center mb-4">
+											<button type="submit" class="btn text-white shadow-sm w-20 samuraitravel-btn">レビューを投稿する</button>
+										</div>
+									</form>
 								</div>
-								</form>
 								
 								<!-- レビューリスト表示ブロック -->
 								<div class="container mb-4">
