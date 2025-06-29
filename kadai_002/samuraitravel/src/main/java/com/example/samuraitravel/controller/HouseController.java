@@ -95,10 +95,17 @@ public class HouseController {
 
         Integer loginUserId = (userDetails != null) ? userDetails.getUser().getId() : null;
         
+        boolean canPostReview = false;
+        if (loginUserId != null) {
+            boolean alreadyReviewed = reviewRepository.existsByUserIdAndHouseId(loginUserId, id);
+            canPostReview = !alreadyReviewed;
+        }
+        
         model.addAttribute("house", house);
         model.addAttribute("reservationInputForm", new ReservationInputForm());
         model.addAttribute("reviewList", reviews);
         model.addAttribute("loginUserId", loginUserId);
+        model.addAttribute("canPostReview", canPostReview);
 
         return "houses/show";
     }
