@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">    
+   <head>
+       <div th:replace="~{fragment :: meta}"></div>   
+            
+       <div th:replace="~{fragment :: styles}"></div>
+	   
+       <title th:text="${house.name} + 'のレビュー一覧 - SAMURAI Travel'">レビュー一覧</title>	
+   </head>
+   <body>
+
+		<div class="samuraitravel-wrapper">
+			
+		<!--ヘッダー-->
+		<div th:replace="~{fragment :: header}"></div>
+			
+		<main>
+			<div class="container pt-4 pb-5 samuraitravel-container">	
+				<div class="row justify-content-center">
+					<div class="col-xxl-9 col-xl-10 col-lg-11">
+						<nav class="mb-4" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0">
+								<li class="breadcrumb-item"><a th:href="@{/}">ホーム</a></li>
+								<li class="breadcrumb-item"><a th:href="@{/houses}">民宿一覧</a></li>
+								<li class="breadcrumb-item"><a th:href="@{/houses/{id}(id=${house.id})}">民宿詳細</a></li>
+								<li class="breadcrumb-item active" aria-current="page">レビュー一覧</li>
+							</ol>
+						</nav>
+
+
+			<!--レビュー一覧の表示-->
+	 		<h1 class="mb-4 text-center" th:text="${house.name} + 'のレビュー一覧'"></h1> 
+					
+			<!-- レビューリスト表示ブロック -->
+			<div class="container mb-4">
+			  <div class="row row-cols-1 row-cols-md-2 g-4">
+			    
+
+			    <!-- 最初の6件だけ表示 -->
+			    <div class="col" th:each="review : ${reviewPage.content}">
+			      <div class="card h-100">
+			        <div class="card-body">
+			          <h5 class="card-title" th:text="${review.user.name}"></h5>
+
+			          <!-- 編集・削除リンク（認証済みユーザー向け） -->
+					  <div class="position-absolute top-0 end-0 p-2"
+					       th:if="${loginUserId != null and loginUserId == review.user.id}">
+					    <a th:href="@{/houses/{houseId}/reviews/{reviewId}/edit(houseId=${house.id}, reviewId=${review.id})}">編集</a>
+					    <a th:href="@{/houses/{houseId}/review/{id}/delete(houseId=${house.id}, id=${review.id})}" class="samuraitravel-link-danger" data-bs-toggle="modal" th:data-bs-target="${'#deleteReviewModal' + review.id}">削除</a>
+					
+						<!-- 削除用モーダル -->
+							<div class="modal fade" th:id="${'deleteReviewModal' + review.id}" tabindex="-1" th:aria-labelledby="${'deleteReviewModalLabel' + review.id}">
+							  <div class="modal-dialog">
+							    <div class="modal-content">
+							      <div class="modal-header">
+							        <h5 class="modal-title" th:id="${'deleteReviewModalLabel' + review.id}" th:text="${house.name + 'のレビューを削除してもよろしいですか？'}"></h5>
+							        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+							      </div>
+							      <div class="modal-footer">
+							        <form method="post" th:action="@{/houses/{houseId}/review/{id}/delete(houseId=${house.id}, id=${review.id})}">
+									<input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+							          <button type="submit" class="btn samuraitravel-btn-danger text-white shadow-sm">削除</button>
+							        </form>
+							      </div>
+							    </div>
+							  </div>
+							</div>  
+						</div>
+
+			          <p>
+			            <span class="ratestar" th:each="i : ${#numbers.sequence(1, review.rating)}">★</span><span class="ratestar" th:if="${review.rating < 5}" th:each="i : ${#numbers.sequence(1, 5 - review.rating)}">☆</span>
+			          </p>
+			          <small th:text="${#dates.format(review.createdAt, 'yyyy年MM月dd日')}"></small>
+			          <p class="card-text" th:text="${review.comment}"></p>
+			        </div>
+			      </div>
+				</div> <!-- ← この `col` がループ用 -->
+			</div> <!-- row -->	
+		</div> <!-- container -->
+	   
+	   <!-- ページネーション -->
+	     <div th:if="${reviewPage.getTotalPages() > 1}" class="d-flex justify-content-center">
+	         <nav aria-label="レビュー一覧ページ">
+	             <ul class="pagination">
+	   			
+	                 <li class="page-item">
+	                     <span th:if="${reviewPage.isFirst()}" class="page-link disabled">前</span>
+	                     <a th:unless="${reviewPage.isFirst()}" th:href="@{/houses/{id}/reviews(id=${house.id}, page=${reviewPage.number - 1})}" class="page-link samuraitravel-page-link">前</a>
+	                 </li>
+	                 <li th:each="i : ${#numbers.sequence(0, reviewPage.getTotalPages() - 1)}" class="page-item">
+	                     <span th:if="${i == reviewPage.getNumber()}" class="page-link active samuraitravel-active" th:text="${i + 1}"></span>
+	                     <a th:unless="${i == reviewPage.getNumber()}" th:href="@{/houses/{id}/reviews(id=${house.id}, page=${i})}" class="page-link samuraitravel-page-link" th:text="${i + 1}"></a>
+	                 </li>
+	                 <li class="page-item">                        
+	                     <span th:if="${reviewPage.isLast()}" class="page-link disabled">次</span>
+	                     <a th:unless="${reviewPage.isLast()}" th:href="@{/houses/{id}/reviews(id=${house.id}, page=${reviewPage.number + 1})}" class="page-link samuraitravel-page-link">次</a>
+	                 </li>
+	             </ul>
+	         </nav> 
+	     </div> 
+		 
+		 
+		</main>	
+			
+		<!--フッター-->
+		<div th:replace="~{fragment :: footer}"></div>
+		</div>
+		
+		<div th:replace="~{fragment :: scripts}"></div>
+	
+   </body>
+</html>
