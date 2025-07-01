@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">    
+   <head>
+       <div th:replace="~{fragment :: meta}"></div>   
+            
+       <div th:replace="~{fragment :: styles}"></div>
+	   
+	<title th:text="${house.name} + 'のレビュー投稿 - SAMURAI Travel'">レビュー投稿</title>
+   </head>
+   <body>
+		<div class="samuraitravel-wrapper">	
+		<!--ヘッダー-->
+		<div th:replace="~{fragment :: header}"></div>	
+
+	   <main>
+	       <div class="container pt-4 pb-5 samuraitravel-container">
+	           <div class="row justify-content-center">
+	               <div class="col-xl-5 col-lg-6 col-md-8">
+						<nav class="mb-4" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0">
+								<li class="breadcrumb-item"><a th:href="@{/}">ホーム</a></li>
+								<li class="breadcrumb-item"><a th:href="@{/houses}">民宿一覧</a></li>
+								<li class="breadcrumb-item"><a th:href="@{/houses/{id}(id=${house.id})}">民宿詳細</a></li>
+								<li class="breadcrumb-item active" aria-current="page">レビュー投稿</li>
+							</ol>
+						</nav>
+					
+
+	                   <h1 class="mb-4 text-center" th:text="${house.name} + 'のレビュー投稿'"></h1>          
+					   <form method="post" th:action="@{|/houses/${house.id}/reviews/create|}" th:object="${reviewRegisterForm}" enctype="multipart/form-data">
+						
+						<input type="hidden" th:field="*{houseId}" />
+						<input type="hidden" name="userId" th:value="${#authentication.principal.user.id}">
+
+						
+					       <!-- 評価 -->
+					       <div class="form-group row mb-4 align-items-center">
+					           <label for="rating" class="col-md-3 col-form-label fw-bold text-md-end">評価</label>
+					           <div class="col-md-8">
+					               <select name="rating" class="ratestar form-control" th:field="*{rating}">
+					                   <option value="5">★★★★★</option>
+					                   <option value="4">★★★★☆</option>
+					                   <option value="3">★★★☆☆</option>
+					                   <option value="2">★★☆☆☆</option>
+					                   <option value="1">★☆☆☆☆</option>
+					               </select>
+					           </div>
+					       </div>
+
+					       <!-- コメント -->
+					       <div class="form-group row mb-4 align-items-start">
+					           <label for="comment" class="col-md-3 col-form-label fw-bold text-md-end">コメント</label>
+					           <div class="col-md-8">
+					               <div th:if="${#fields.hasErrors('comment')}" class="text-danger small mb-2" th:errors="*{comment}"></div>
+					               <textarea class="form-control" th:field="*{comment}" rows="5"></textarea>
+					           </div>
+					       </div>
+
+					       <!-- 投稿ボタン -->
+					       <div class="form-group d-flex justify-content-center my-4">
+					           <button type="submit" class="btn text-white shadow-sm w-50 samuraitravel-btn">投稿</button>
+					       </div>
+
+					   </form> 
+					                                                                          
+	               </div>
+				   
+				   
+	           </div>
+	       </div>                
+	   </main>	   
+	   
+   			
+   		<!--フッター-->
+   		<div th:replace="~{fragment :: footer}"></div>
+   		</div>
+   		
+   		<div th:replace="~{fragment :: scripts}"></div>
+   	
+   </body>
+</html>
